@@ -1,0 +1,23 @@
+# Allow reading and writing principal collection (same as username)
+[list]
+user: .+
+collection: {user}
+permissions: RW
+
+# Allow reading and writing calendars and address books that are direct
+# children of the principal collection
+[calendars]
+user: .+
+collection: {user}/[^/]+
+permissions: rw
+
+[mil_sees_maaike]
+user: mil
+collection: maaike/[^/]+
+permissions: r
+
+[maaike_sees_mil]
+user: maaike
+collection: mil/[^/]+
+permissions: r
+# vi: ft=ini
