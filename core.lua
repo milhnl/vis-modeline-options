@@ -46,7 +46,14 @@ local vim_settings_to_vis_options = function(vim_settings)
   local options = {}
   for k, v in pairs(vim_settings) do
     if k == 'colorcolumn' or k == 'cc' then
-      options.colorcolumn = tonumber(v)
+      if v:match('^[-+]') then
+        local tw = vim_settings['textwidth'] or vim_settings['tw']
+        if tw then
+          options.colorcolumn = tonumber(v) + tw
+        end
+      else
+        options.colorcolumn = tonumber(v)
+      end
     elseif k == 'expandtab' or k == 'et' then
       options.expandtab = v
     elseif k == 'filetype' or k == 'ft' then
@@ -62,6 +69,7 @@ end
 
 return {
   line_to_vim_settings = line_to_vim_settings,
+  vim_settings_to_vis_options = vim_settings_to_vis_options,
   get_pairs_for = function(lines)
     local tenlines = lines
     if #lines > 10 then

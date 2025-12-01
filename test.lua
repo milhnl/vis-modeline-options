@@ -24,7 +24,7 @@ local compare_table = function(a, b, fail)
   return same
 end
 
-local testmodeline = function(modeline, expected)
+local test_parser = function(modeline, expected)
   local vim_settings = core.line_to_vim_settings(modeline)
   compare_table(vim_settings, expected, function(k, a, b)
     error(
@@ -39,12 +39,30 @@ local testmodeline = function(modeline, expected)
   end)
 end
 
-testmodeline(' vi:noai:sw=3 ts=6 ', { ai = false, sw = '3', ts = '6' })
-testmodeline(' vi:noai sw=3 ts=6 ', { ai = false, sw = '3', ts = '6' })
-testmodeline('/* vim: set ai tw=75: */', { ai = true, tw = '75' })
-testmodeline('# vim: set expandtab:', { expandtab = true })
-testmodeline('# vim: se noexpandtab:', { expandtab = false })
-testmodeline('// vim: noai:ts=4:sw=4', { ai = false, sw = '4', ts = '4' })
-testmodeline('/* vim: set noai sw=4: */', { ai = false, sw = '4' })
+test_parser(' vi:noai:sw=3 ts=6 ', { ai = false, sw = '3', ts = '6' })
+test_parser(' vi:noai sw=3 ts=6 ', { ai = false, sw = '3', ts = '6' })
+test_parser('/* vim: set ai tw=75: */', { ai = true, tw = '75' })
+test_parser('# vim: set expandtab:', { expandtab = true })
+test_parser('# vim: se noexpandtab:', { expandtab = false })
+test_parser('// vim: noai:ts=4:sw=4', { ai = false, sw = '4', ts = '4' })
+test_parser('/* vim: set noai sw=4: */', { ai = false, sw = '4' })
 --backslashes are doubled for lua in the following test
-testmodeline('/* vi:set dir=c\\:\\tmp: */', { dir = 'c:\\tmp' })
+test_parser('/* vi:set dir=c\\:\\tmp: */', { dir = 'c:\\tmp' })
+
+local test_translation = function(description, settings, expected)
+  local vim_settings = core.vim_settings_to_vis_options(settings)
+  compare_table(vim_settings, expected, function(k, a, b)
+    error(
+      description
+        .. ': '
+        .. k
+        .. ' output '
+        .. tostring(a)
+        .. ' does not match expected '
+        .. tostring(b)
+    )
+  end)
+end
+
+test_translation('tw/cc', { tw = '79', cc = '+1' }, { colorcolumn = 80 })
+test_translation('tw/cc neg', { tw = '81', cc = '-1' }, { colorcolumn = 80 })
