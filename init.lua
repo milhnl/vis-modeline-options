@@ -15,7 +15,7 @@ local apply = function(win)
     win.options[k] = v
   end
   if syntax then
-    win.syntax = syntax
+    win:set_syntax(syntax)
   end
 end
 
